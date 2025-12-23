@@ -1,0 +1,76 @@
+{% extends "base_layouts/base_auth.html" %}
+{% block title %}{{ site_name }} | Dashboard{% endblock %}
+{% block content %}
+
+<meta http-equiv="refresh" content="900">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">Dashboard</h2>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <span style="font-size:18px">Welcome to {{ site_name }}</span>
+        <br/><br/>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Available Modules
+            </div>
+            <div class="panel-body">
+                {% if modules and modules|length %}
+                <ul style="list-style-type: disc; padding-left: 20px;">
+                    {% for mod in modules %}
+                        <li style="margin-bottom: 8px;">
+                            <a href="/data-objects-list">{{ mod.module_name }} | Data Objects={{ mod.data_object_count }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> No modules available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Available Data Objects
+            </div>
+            <div class="panel-body">
+                {% if data_objects and data_objects|length %}
+                <ul style="list-style-type: disc; padding-left: 20px;">
+                    {% for obj in data_objects %}
+                        <li style="margin-bottom: 8px;">
+                            <a href="/weight-list?data_object_uuid={{ obj.data_object_uuid }}">{{ obj.data_object_name }} [{{ obj.data_object_unit }}] | Records={{ obj.record_count }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> No data objects available. <a href="/data-object-add">Create one now</a>.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+
+{% endblock %}

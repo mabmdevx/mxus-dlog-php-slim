@@ -1,0 +1,106 @@
+{% extends "base_layouts/base_unauth.html" %}
+
+{% block title %}{{ site_name }} | Sign Up{% endblock %}
+
+{% block content %}
+<div class="login-panel panel panel-default" style="margin-top:5% !important">
+    <div class="panel-heading">
+        <h3 class="panel-title">Create New Account</h3>
+    </div>
+    <div class="panel-body">
+        <form role="form" method="POST" action="/signup">
+            <fieldset>
+                {# Display success message if present #}
+                {% if msg_success %}
+                    <div class="form-group">
+                        <div class="alert alert-success" role="alert">
+                            {{ msg_success }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Display error message if present #}
+                {% if msg_error %}
+                    <div class="form-group">
+                        <div class="alert alert-danger" role="alert">
+                            {{ msg_error }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Username field #}
+                <div class="form-group">
+                    <label for="user_username">Username</label>
+                    <input 
+                        id="user_username" 
+                        name="user_username" 
+                        class="form-control" 
+                        placeholder="Choose a username (min 3 characters)" 
+                        type="text" 
+                        required 
+                        autofocus
+                        value="{{ username | default('') }}"
+                    >
+                </div>
+
+                {# Email field #}
+                <div class="form-group">
+                    <label for="user_email">Email Address</label>
+                    <input 
+                        id="user_email" 
+                        name="user_email" 
+                        class="form-control" 
+                        placeholder="Enter your email address" 
+                        type="email"
+                        required
+                        value="{{ email | default('') }}"
+                    >
+                </div>
+
+                {# Password field #}
+                <div class="form-group">
+                    <label for="user_password">Password</label>
+                    <input 
+                        id="user_password" 
+                        name="user_password" 
+                        class="form-control" 
+                        placeholder="Password (min 3 characters)" 
+                        type="password"
+                        required
+                    >
+                </div>
+
+                {# Confirm Password field #}
+                <div class="form-group">
+                    <label for="user_password_confirm">Confirm Password</label>
+                    <input 
+                        id="user_password_confirm" 
+                        name="user_password_confirm" 
+                        class="form-control" 
+                        placeholder="Confirm your password" 
+                        type="password"
+                        required
+                    >
+                </div>
+
+                {# Signup button #}
+                <button type="submit" class="btn btn-lg btn-success btn-block">
+                    Create Account
+                </button>
+            </fieldset>
+
+            {# CSRF token for security (optional but recommended) #}
+            {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            {% endif %}
+        </form>
+    </div>
+
+    {# Login link section #}
+    <div class="panel-body">
+        <p class="text-center">
+            Already have an account? <a href="{{ login_url | default('/login') }}">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

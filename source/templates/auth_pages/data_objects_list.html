@@ -1,0 +1,82 @@
+{% extends "base_layouts/base_auth.html" %}
+{% block title %}{{ site_name }} | Data Objects{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">Data Objects</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Data Objects List
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped" style="margin-bottom:0px;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">Description</th>
+                                <th class="text-center">Unit</th>
+                                <th class="text-center">Created On</th>
+                                <th class="text-center">Edit</th>
+                                <th class="text-center">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if data_objects and data_objects|length %}
+                                {% for obj in data_objects %}
+                                    <tr>
+                                        <td class="text-center">
+                                            {{ obj.data_object_id }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ obj.data_object_name }}
+                                        </td>
+                                        <td class="text-center">
+                                            {% if obj.data_object_desc %}{{ obj.data_object_desc }}{% else %}N/A{% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ obj.data_object_unit }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ obj.created_on }}
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="/data-object-update/{{ obj.data_object_uuid }}" class="btn btn-warning btn-sm">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="/data-object-delete/{{ obj.data_object_uuid }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this data object?');">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center">No data objects available. <a href="/data-object-add">Create one now</a>.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Data Object Button -->
+        <div style="float:right; margin-bottom: 20px;">
+            <a href="/data-object-add" class="btn btn-success">
+                <i class="fa fa-plus"></i> Add New Data Object
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

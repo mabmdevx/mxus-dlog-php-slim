@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+
+    <meta name="description" content="Dlog - Data logger and analytics">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Core CSS - Include with every page -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- SB Admin CSS - Include with every page -->
+    <link href="/assets/css/sb-admin.css" rel="stylesheet">
+	<link href="/assets/css/styles.css" rel="stylesheet">
+
+    <style>
+        /* Keep submenus closed by default */
+        .nav-second-level {
+            display: none;
+        }
+
+        /* Show submenu when parent is active */
+        .nav > li.active > ul.nav-second-level {
+            display: block;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/dashboard">
+                    <img src="/assets/images/dlog_logo.png" style="height:40px; margin-left: -10px; margin-top: -10px;" alt="{{ site_name }} logo"/>
+                </a>
+            </div>
+            <!-- /.navbar-header -->
+        
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        Welcome, {{ session.user_username }}<i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href="/change-password"><i class="fa fa-user fa-fw"></i>&nbsp;Change Password</a>
+                        </li>
+                        <li>
+                            <a href="/logout"><i class="fa fa-sign-out fa-fw"></i>&nbsp;Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+        </nav>
+        <!-- /.navbar-static-top -->
+
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="side-menu">             
+                    <li>
+                        <a href="/dashboard"><i class="fa fa-dashboard fa-fw"></i>&nbsp;Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="/modules-list"><i class="fa fa-table fa-fw"></i>&nbsp;Modules</a>
+                    </li>
+                    <li>
+                        <a href="/data-objects-list"><i class="fa fa-table fa-fw"></i>&nbsp;Data Objects</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-list fa-fw"></i>&nbsp;Weight<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a href="/weight-list"><i class="fa fa-list fa-fw"></i>&nbsp;Weight | List</a>
+                            </li>
+                            <li>
+                                <a href="/weight-add"><i class="fa fa-edit fa-fw"></i>&nbsp;Weight | Add</a>
+                            </li>
+                            <li>
+                                <a href="/weight-analytics"><i class="fa fa-gear fa-fw"></i>&nbsp;Weight | Analytics</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- /#side-menu -->
+            </div>
+            <!-- /.sidebar-collapse -->
+        </nav>
+        <!-- /.navbar-static-side -->
+
+
+        <div id="page-wrapper">
+            {% block content %}{% endblock %}        
+        </div>   
+        <!-- /#page-wrapper -->
+
+
+        <footer class="navbar-default" style="float:right; margin:20px">
+            <div>
+                <div class="row">
+                    <div class="col-lg-12">&copy; {{ current_year }} {{ site_name }} by <a href="https://webserve.xyz" target="_blank">WebServe</a></div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- /#wrapper -->
+
+
+    <!-- Core Scripts - Include with every page -->
+    <script src="/assets/js/jquery-1.10.2.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+
+    <script>
+        // Toggle submenu on click
+        $(document).ready(function() {
+            $('.nav-second-level').hide();
+            
+            $('#side-menu li a').on('click', function(e) {
+                var $submenu = $(this).next('.nav-second-level');
+                
+                if ($submenu.length > 0) {
+                    e.preventDefault();
+                    $submenu.slideToggle(200);
+                    $(this).parent('li').toggleClass('active');
+                    return false;
+                }
+            });
+        });
+
+        function copyToClipboard(slug) {
+            const url = `${window.location.origin}/share/${slug}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Share URL copied: " + url);
+            }).catch(err => {
+                alert("Failed to copy the URL: " + err);
+            });
+        }
+    </script>
+    
+
+    <!-- Statcounter code -->
+    {% include "partials/statcounter.html" ignore missing %}
+
+</body>
+
+</html>

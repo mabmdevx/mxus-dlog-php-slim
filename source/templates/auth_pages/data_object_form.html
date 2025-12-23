@@ -1,0 +1,154 @@
+{% extends "base_layouts/base_auth.html" %}
+{% block title %}{{ site_name }} | {% if data_object %}Update Data Object{% else %}Add Data Object{% endif %}{% endblock %}
+{% block content %}
+
+<style>
+    .readonly-background {
+        background-color: #f7fbfb !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">{% if data_object %}Update Data Object{% else %}Add Data Object{% endif %}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {% if data_object %}Update Data Object{% else %}Add New Data Object{% endif %}
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    {% if msg_error is not none %}
+                    <div class="col-lg-12">
+                        <div class="alert alert-danger">{{ msg_error }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if msg_success is not none %}
+                    <div class="col-lg-12">
+                        <div class="alert alert-success">{{ msg_success }}</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-lg-6">
+                        <form id="form_data_object" name="form_data_object" role="form" method="post" 
+                            action="{% if data_object %}/data-object-update/{{ data_object.data_object_uuid }}{% else %}/data-object-add{% endif %}">
+
+                            <!-- Data Object Name -->
+                            <div class="form-group">
+                                <label class="form-label">Name <span style="color: red;">*</span></label>
+                                <input type="text" 
+                                       name="data_object_name" 
+                                       class="form-control" 
+                                       value="{% if data_object %}{{ data_object.data_object_name }}{% endif %}" 
+                                       placeholder="Enter data object name" 
+                                       required>
+                                <small class="form-text text-muted">Enter a descriptive name for this data object</small>
+                            </div>
+
+                            <!-- Data Object Description -->
+                            <div class="form-group">
+                                <label class="form-label">Description (Optional)</label>
+                                <textarea name="data_object_desc" 
+                                          class="form-control" 
+                                          rows="4" 
+                                          placeholder="Enter description">{% if data_object %}{{ data_object.data_object_desc }}{% endif %}</textarea>
+                                <small class="form-text text-muted">Provide details about what this data object tracks</small>
+                            </div>
+
+                            <!-- Data Object Unit -->
+                            <div class="form-group">
+                                <label class="form-label">Unit <span style="color: red;">*</span></label>
+                                <input type="text" 
+                                       name="data_object_unit" 
+                                       class="form-control" 
+                                       value="{% if data_object %}{{ data_object.data_object_unit }}{% endif %}" 
+                                       placeholder="e.g., kg, lbs, cm, inches" 
+                                       required>
+                                <small class="form-text text-muted">Enter the unit of measurement (e.g., kg, lbs, cm)</small>
+                            </div>
+
+                            <!-- Module Selection -->
+                            <div class="form-group">
+                                <label class="form-label">Module <span style="color: red;">*</span></label>
+                                <select name="data_object_module_uuid" class="form-control" required>
+                                    <option value="">-- Select a Module --</option>
+                                    {% for mod in modules %}
+                                    <option value="{{ mod.module_uuid }}" 
+                                            {% if data_object and data_object.data_object_module_uuid == mod.module_uuid %}selected{% endif %}>
+                                        {{ mod.module_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Select the module to organize this data object</small>
+                            </div>
+
+                            <!-- Created On (Read-only if updating) -->
+                            {% if data_object %}
+                            <div class="form-group">
+                                <label class="form-label">Created On</label>
+                                <input type="text" 
+                                       class="form-control readonly-background" 
+                                       value="{{ data_object.created_on }}" 
+                                       disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Created By</label>
+                                <input type="text" 
+                                       class="form-control readonly-background" 
+                                       value="{{ data_object.created_by }}" 
+                                       disabled>
+                            </div>
+                            {% endif %}
+
+                            <br/>
+
+                            <!-- Hidden Fields -->
+                            {% if data_object and data_object.data_object_id %}
+                            <input id="data_object_id" name="data_object_id" type="hidden" value="{{ data_object.data_object_id }}">
+                            {% endif %}
+
+                            {% if data_object and data_object.data_object_uuid %}
+                            <input id="data_object_uuid" name="data_object_uuid" type="hidden" value="{{ data_object.data_object_uuid }}">
+                            {% endif %}
+
+                            <input name="postback_data_object" type="hidden" value="{% if data_object %}update{% else %}create{% endif %}">
+
+                            <!-- Submit and Reset Buttons -->
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="reset" class="btn btn-secondary">Reset</button>
+                            <a href="/data-objects-list" class="btn btn-default">Back to List</a>
+
+                            <hr/>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <!-- Information Panel -->
+                        <div class="panel panel-info">
+                            <div class="panel-heading">Information</div>
+                            <div class="panel-body">
+                                <h4>{% if data_object %}Update Data Object{% else %}Add Data Object{% endif %}</h4>
+                                <p>{% if data_object %}Update the details of this data object.{% else %}Use this form to create a new data object that you can use to track weight entries.{% endif %}</p>
+                                <ul>
+                                    <li>Enter a name for the data object</li>
+                                    <li>Optionally add a description</li>
+                                    <li>Specify the unit of measurement</li>
+                                    <li>Click "Save" to {% if data_object %}update{% else %}create{% endif %}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

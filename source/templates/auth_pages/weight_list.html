@@ -1,0 +1,109 @@
+{% extends "base_layouts/base_auth.html" %}
+{% block title %}{{ site_name }} | Weight Entries{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">Weight Entries</h2>
+        
+        <!-- Data Object Filter -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Filter by Data Object
+            </div>
+            <div class="panel-body">
+                <form method="GET" action="/weight-list" id="filter_form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="data_object_filter">Select Data Object:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+                            <select id="data_object_filter" name="data_object_uuid" class="form-control" style="width: 350px;">
+                                <option value="">-- Select a Data Object --</option>
+                                {% if all_data_objects %}
+                                    {% for obj in all_data_objects %}
+                                        <option value="{{ obj.data_object_uuid }}" {% if selected_data_object_uuid == obj.data_object_uuid %}selected{% endif %}>
+                                            {{ obj.data_object_name }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Display</button>
+                            <a href="/weight-list" class="btn btn-default">Clear</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {% if selected_data_object_uuid %}Weight Entries | {{ selected_data_object_name }}{% else %} Weight Entries{% endif %}
+            </div>
+            <div class="panel-body">
+                {% if selected_data_object_uuid %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped" style="margin-bottom:0px;">
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Weight Value</th>
+                                <th class="text-center">Timestamp</th>
+                                <th class="text-center">Created On</th>
+                                <th class="text-center">Edit</th>
+                                <th class="text-center">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if weights and weights|length %}
+                                {% for weight in weights %}
+                                    <tr>
+                                        <td class="text-center">
+                                            {{ weight.weight_id }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ weight.weight_val }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ weight.weight_timestamp }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ weight.created_on }}
+                                        </td>                         
+                                        <td class="text-center">
+                                            <a href="/weight-update/{{ weight.weight_uuid }}" class="btn btn-warning btn-sm">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="/weight-delete/{{ weight.weight_uuid }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this weight entry?');">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No weight entries available for this data object</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> Please select a data object from the filter above to view weight entries.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Add New Weight Entry Button -->
+        <div style="float:right; margin-bottom: 20px;">
+            <a href="/weight-add" class="btn btn-success">
+                <i class="fa fa-plus"></i> Add New Weight Entry
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+<!-- Statcounter Analytics Code -->
+{% if statcounter_project and statcounter_security %}
+<script type="text/javascript">
+var sc_project={{ statcounter_project }}; 
+var sc_invisible=1; 
+var sc_security="{{ statcounter_security }}"; 
+</script>
+<script type="text/javascript"
+src="https://www.statcounter.com/counter/counter.js"
+async></script>
+<noscript><div class="statcounter"><a title="Web Analytics"
+href="https://statcounter.com/" target="_blank"><img
+class="statcounter"
+src="https://c.statcounter.com/{{ statcounter_project }}/0/{{ statcounter_security }}/1/"
+alt="Web Analytics"
+referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+{% else %}
+<!-- Statcounter disabled: STATCOUNTER_PROJECT and/or STATCOUNTER_SECURITY not configured in .env -->
+{% endif %}
+<!-- End of Statcounter Code -->

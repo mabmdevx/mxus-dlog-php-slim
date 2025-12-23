@@ -1,0 +1,73 @@
+{% extends "base_layouts/base_unauth.html" %}
+
+{% block title %}{{ site_name }} | Login{% endblock %}
+
+{% block content %}
+<div class="login-panel panel panel-default" style="margin-top:10% !important">
+    <div class="panel-heading">
+        <h3 class="panel-title">Please Sign In</h3>
+    </div>
+    <div class="panel-body">
+        <form role="form" method="POST" action="{{ login_action | default('/login') }}">
+            <fieldset>
+                {# Display error message if present #}
+                {% if msg_error %}
+                    <div class="form-group">
+                        <div class="alert alert-danger" role="alert">
+                            {{ msg_error }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Username field #}
+                <div class="form-group">
+                    <label for="user_username" class="sr-only">Username</label>
+                    <input 
+                        id="user_username" 
+                        name="user_username" 
+                        class="form-control" 
+                        placeholder="Username" 
+                        type="text" 
+                        required 
+                        autofocus
+                        value="{{ username | default('') }}"
+                    >
+                </div>
+
+                {# Password field #}
+                <div class="form-group">
+                    <label for="user_password" class="sr-only">Password</label>
+                    <input 
+                        id="user_password" 
+                        name="user_password" 
+                        class="form-control" 
+                        placeholder="Password" 
+                        type="password"
+                        required
+                    >
+                </div>
+
+                {# Login button #}
+                <button type="submit" class="btn btn-lg btn-success btn-block">
+                    Login
+                </button>
+            </fieldset>
+
+            {# CSRF token for security (optional but recommended) #}
+            {% if csrf_token %}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            {% endif %}
+
+            {# Login post check flag #}
+            <input type="hidden" name="checkloginpostbk" id="checkloginpostbk" value="1">
+        </form>
+    </div>
+
+    {# Signup link section #}
+    <div class="panel-body">
+        <a href="{{ signup_url | default('/signup') }}" class="btn btn-lg btn-info btn-block">
+            Create New Account
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends "base_layouts/base_auth.html" %}
+{% block title %}{{ site_name }} | Weight Analytics{% endblock %}
+{% block content %}
+
+<style>
+    .chart-container {
+        margin-top: 20px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .axis {
+        font-size: 12px;
+    }
+
+    .line {
+        fill: none;
+        stroke: #3498db;
+        stroke-width: 2px;
+    }
+
+    .dot {
+        fill: #3498db;
+        stroke: #fff;
+        stroke-width: 2px;
+    }
+
+    .tooltip {
+        position: absolute;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 4px;
+        pointer-events: none;
+        font-size: 12px;
+        z-index: 1000;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="page-header page-header-title">Weight Analytics</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Select Data Object for Analysis
+            </div>
+            <div class="panel-body">
+                <form method="GET" action="/weight-analytics" id="filter_form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="data_object_filter">Select Data Object:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+                            <select id="data_object_filter" name="data_object_uuid" class="form-control" style="width: 350px;">
+                                <option value="">-- Select a Data Object --</option>
+                                {% if all_data_objects %}
+                                    {% for obj in all_data_objects %}
+                                        <option value="{{ obj.data_object_uuid }}" {% if selected_data_object_uuid == obj.data_object_uuid %}selected{% endif %}>
+                                            {{ obj.data_object_name }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Analyze</button>
+                            <a href="/weight-analytics" class="btn btn-default">Clear</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {% if selected_data_object_uuid %}Weight Chart - {{ selected_data_object_name }}{% else %}Weight Chart{% endif %}
+            </div>
+            <div class="panel-body">
+                {% if selected_data_object_uuid %}
+                    {% if weights and weights|length %}
+                    <div class="chart-container">
+                        <svg id="weightChart"></svg>
+                    </div>
+                    <div style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 4px;">
+                        <h4>Statistics</h4>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <strong>Total Entries:</strong> {{ stats.total }}
+                            </div>
+                            <div class="col-sm-3">
+                                <strong>Min Value:</strong> {{ stats.min }}
+                            </div>
+                            <div class="col-sm-3">
+                                <strong>Max Value:</strong> {{ stats.max }}
+                            </div>
+                            <div class="col-sm-3">
+                                <strong>Average:</strong> {{ "%.2f"|format(stats.average) }}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> No weight entries available for this data object.
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i> Please select a data object from the filter above to view analytics.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- D3.js Library -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const chartData = {{ chart_data | raw }};
+    
+    if (!chartData || chartData.length === 0) {
+        return; // No data to display
+    }
+
+    // Function to create/update the chart
+    function createChart() {
+        // Clear previous chart
+        d3.select("#weightChart").selectAll("*").remove();
+
+        // Get container dimensions
+        const container = document.getElementById("weightChart").parentElement;
+        const containerWidth = container.clientWidth;
+        const containerHeight = window.innerWidth < 768 ? 300 : 400; // Smaller height on mobile
+
+        // Set dimensions
+        const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+        const width = containerWidth - margin.left - margin.right;
+        const height = containerHeight - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3.select("#weightChart")
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Parse data
+        const data = chartData.map(d => ({
+            date: new Date(d.date),
+            value: d.value
+        }));
+
+        // Create scales
+        const xScale = d3.scaleTime()
+            .domain(d3.extent(data, d => d.date))
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value) * 1.1])
+            .range([height, 0]);
+
+        // Create line generator
+        const line = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.value));
+
+        // Add X axis
+        const xAxis = svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale));
+
+        // Format x-axis labels based on screen size
+        if (window.innerWidth < 768) {
+            xAxis.selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end")
+                .style("font-size", "10px");
+        } else {
+            xAxis.selectAll("text")
+                .style("font-size", "12px");
+        }
+
+        xAxis.append("text")
+            .attr("x", width / 2)
+            .attr("y", window.innerWidth < 768 ? 50 : 40)
+            .attr("fill", "black")
+            .style("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text("Date");
+
+        // Add Y axis
+        svg.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(yScale))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -40)
+            .attr("fill", "black")
+            .style("text-anchor", "middle")
+            .style("font-size", "12px")
+            .text("Weight Value");
+
+        // Add line path
+        svg.append("path")
+            .datum(data)
+            .attr("class", "line")
+            .attr("d", line);
+
+        // Add dots for data points
+        svg.selectAll(".dot")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("class", "dot")
+            .attr("cx", d => xScale(d.date))
+            .attr("cy", d => yScale(d.value))
+            .attr("r", window.innerWidth < 768 ? 3 : 4)
+            .on("mouseover", (event, d) => {
+                d3.select(event.currentTarget).attr("r", window.innerWidth < 768 ? 5 : 6);
+                
+                // Show tooltip
+                const tooltip = document.createElement("div");
+                tooltip.className = "tooltip";
+                tooltip.innerHTML = `
+                    <strong>Date:</strong> ${d.date.toLocaleDateString()}<br/>
+                    <strong>Time:</strong> ${d.date.toLocaleTimeString()}<br/>
+                    <strong>Value:</strong> ${d.value}
+                `;
+                document.body.appendChild(tooltip);
+                
+                tooltip.style.left = (event.pageX + 10) + "px";
+                tooltip.style.top = (event.pageY - 10) + "px";
+                
+                tooltip.id = "activeTooltip";
+            })
+            .on("mouseout", (event, d) => {
+                d3.select(event.currentTarget).attr("r", window.innerWidth < 768 ? 3 : 4);
+                
+                const tooltip = document.getElementById("activeTooltip");
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            });
+    }
+
+    // Create initial chart
+    createChart();
+
+    // Redraw chart on window resize
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            createChart();
+        }, 250);
+    });
+});
+</script>
+
+{% endblock %}
